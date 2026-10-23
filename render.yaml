@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: noname-duel
+    runtime: node
+    plan: free
+    region: virginia
+    buildCommand: npm run setup
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeployTrigger: off
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: ELECTRON_SKIP_BINARY_DOWNLOAD
+        value: "1"
