@@ -8,7 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const upstream = path.join(root, 'noname');
 const revision = '90b58bb9934edb1712fd187a80c8323b7aeabaf3';
 const repository = 'https://github.com/libnoname/noname.git';
-const env = { ...process.env, ELECTRON_SKIP_BINARY_DOWNLOAD: '1', NODE_ENV: 'development' };
+const env = { ...process.env, ELECTRON_SKIP_BINARY_DOWNLOAD: '1', NODE_ENV: 'production' };
 
 function run(command, args, cwd = upstream, capture = false) {
   const result = spawnSync(command, args, { cwd, env, encoding: 'utf8', stdio: capture ? 'pipe' : 'inherit' });
@@ -31,7 +31,7 @@ const dirty = run('git', ['status', '--porcelain', '--untracked-files=no'], upst
 if (dirty) throw new Error('Upstream has local edits. Preserve them before building the pinned release.');
 
 const pnpm = args => run('npx', ['--yes', 'pnpm@11.15.1', ...args]);
-pnpm(['install', '--frozen-lockfile']);
+pnpm(['install', '--frozen-lockfile', '--prod=false']);
 pnpm(['build']);
 pnpm(['-F', '@noname/server', 'build']);
 
