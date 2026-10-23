@@ -1,6 +1,6 @@
 /** Fetch and build the exact, unmodified upstream release. */
 import { spawnSync } from 'node:child_process';
-import { access, copyFile, readFile, writeFile, stat } from 'node:fs/promises';
+import { access, copyFile, readFile, writeFile, stat, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -32,12 +32,23 @@ if (dirty) throw new Error('Upstream has local edits. Preserve them before build
 
 const pnpm = args => run('npx', ['--yes', 'pnpm@11.15.1', ...args]);
 pnpm(['install', '--frozen-lockfile', '--prod=false']);
+// Upstream's aggregate script does not propagate every child build failure.
+// Remove generated outputs so a failed child cannot pass using stale artifacts.
+for (const directory of ['dist', 'apps/core/dist', 'packages/fs/dist', 'packages/jit/dist', 'packages/server/dist']) {
+  await rm(path.join(upstream, directory), { recursive: true, force: true });
+}
 pnpm(['build']);
 pnpm(['-F', '@noname/server', 'build']);
 
 for (const file of ['dist/index.html', 'dist/noname.js', 'dist/LICENSE', 'dist/README.md', 'packages/fs/dist/index.js', 'packages/server/dist/index.js']) {
   if (!(await stat(path.join(upstream, file))).isFile()) throw new Error(`Missing build output: ${file}`);
 }
+const imports = await readFile(path.join(upstream, 'dist/noname/init/import.js'), 'utf8');
+if (!imports.includes('const path = false ? `/character/${name}/index` : `/character/${name}`;')) {
+  throw new Error('Upstream was not built with production character paths.');
+}
+const buildInfo = JSON.parse(await readFile(path.join(upstream, 'dist/game/build-info.json'), 'utf8'));
+if (buildInfo.commit !== revision) throw new Error('Built game does not match the pinned upstream revision.');
 await copyFile(path.join(root, 'scripts/preload.js'), path.join(upstream, 'dist/preload.js'));
 const configPath = path.join(upstream, 'dist/game/config.json');
 const defaults = JSON.parse(await readFile(configPath, 'utf8'));

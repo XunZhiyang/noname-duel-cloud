@@ -8,3 +8,4 @@ playwright-report/
 noname/
 prototype/
 artifacts/
+.vite/
