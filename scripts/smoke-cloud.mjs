@@ -1,4 +1,4 @@
-/** Background-only check of a deployed original noname game and a temporary room. */
+/** Background-only check of the deployed game, classic duel modules, and a temporary room. */
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
@@ -67,7 +67,15 @@ export async function smokeCloud(target) {
     ['/index.html', text => assert.match(text, /<title>无名杀<\/title>/)],
     ['/game/update.js', text => { version = text.match(/version:\s*["']([^"']+)["']/)?.[1]; assert.ok(version, 'Missing original version'); report.version = version; }],
     ['/game/build-info.json', text => { const build = JSON.parse(text); assert.ok(build.commit); report.commit = build.commit; }],
-    ['/mode/single.js', text => assert.ok(text.length > 1000, 'Single-player mode bundle is unexpectedly small')],
+    ['/mode/single.js', text => {
+      assert.ok(text.length > 1000, 'Single-player mode bundle is unexpectedly small');
+      assert.match(text, /installBiaofeng\(single\)/, 'Classic duel installer is missing');
+    }],
+    ['/preload.js', text => assert.match(text, /registerBiaofengMenu\(context.lib, context.get\)/)],
+    ['/additions/biaofeng-menu.js', text => assert.match(text, /标风 1v1/)],
+    ['/additions/biaofeng-data.js', text => assert.match(text, /BIAOFENG_PILE/)],
+    ['/additions/biaofeng-single.js', text => assert.match(text, /installBiaofeng/)],
+    ['/additions/biaofeng-skills.js', text => assert.ok(text.length > 100, 'Classic skill adaptations are missing')],
     ['/image/character/caocao.jpg', null],
     ['/image/card/sha.png', null],
   ];
@@ -107,8 +115,11 @@ export async function smokeCloud(target) {
     await step('create_native_room', async () => {
       host.send(['server', 'create', roomKey, '联机检测', 'caocao', {}, 'single']);
       assert.deepEqual(await host.receive(message => message[0] === 'createroom'), ['createroom', roomKey]);
-      host.send(['server', 'config', { mode: 'single', number: 2, gameStarted: false }]);
-      await guest.receive(message => message[0] === 'updaterooms' && message[1].some(room => room[4] === roomKey));
+      host.send(['server', 'config', { mode: 'single', single_mode: 'biaofeng', biaofeng_four_bans: true, number: 2, gameStarted: false }]);
+      const update = await guest.receive(message => message[0] === 'updaterooms' && message[1].some(room => room[4] === roomKey));
+      const room = update[1].find(room => room[4] === roomKey);
+      assert.equal(room[2].single_mode, 'biaofeng');
+      assert.equal(room[2].biaofeng_four_bans, true);
     });
     await step('join_native_room', async () => {
       guest.send(['server', 'enter', roomKey, '联机检测客', 'zhaoyun']);

@@ -1,8 +1,10 @@
 # 无名杀复用记录
 
-本项目采用完整的无名杀网页应用，保留其界面、结算引擎、武将技能、原有模式规则与联机协议，不另行改写成最初讨论的经典 KOF 规则。早期编写的 `prototype/src/engine.js`、`prototype/src/app.js`、`prototype/src/network.js` 是已停止推进的原型，不作为发布版本，也不在无名杀加载失败时作为后备游戏启动。`prototype/src/data.js`、`prototype/tests/data.test.js` 和 `docs/RULES.md` 保留为早期牌堆核对资料，不表示发布应用调用了这套原型引擎。
+本项目采用完整的无名杀网页应用，保留其界面、结算引擎、原有模式与联机协议。2026-10-23 增加「单挑 → 标风 1v1」：独立模块接入原生选将、事件和换将流程，使用 [RULES.md](RULES.md) 的约定规则。早期编写的 `prototype/src/engine.js`、`prototype/src/app.js`、`prototype/src/network.js` 是已停止推进的原型，不作为发布版本，也不在无名杀加载失败时作为后备游戏启动。
 
-部署只额外提供同域 HTTP/WebSocket 入口，并通过原生 `/preload.js` 设置默认大厅、将发布配置默认模式设为联机。上游检出源码保持不变；发布入口通过可审计的构建补丁移除启动许可弹窗，规则与技能不变。
+部署提供同域 HTTP/WebSocket 入口，通过原生 `/preload.js` 设置默认大厅、注册新增菜单，将发布配置默认模式设为联机。上游检出源码保持不变；构建补丁移除启动许可弹窗，并在编译后的单挑模块中安装 `additions/biaofeng-single.js`。其他单挑选项继续调用原版实现。
+
+`additions/biaofeng-data.js` 记录精确将池与牌堆；旧风包技能从上游已有实现取得。`additions/biaofeng-skills.js` 处理约定旧版与上游的少量技能差异，仅在标风选项中生效。新增模块以 GPL-3.0-only 发布，源码随部署仓库提供。
 
 ## 核对的上游版本
 
