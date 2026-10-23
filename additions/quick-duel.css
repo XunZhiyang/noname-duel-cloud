@@ -1,0 +1,217 @@
+/* Scoped independently of the native game's absolute-positioned UI. */
+#noname-quick-duel,
+#noname-quick-duel *,
+#noname-quick-duel-entry {
+  all: initial;
+  box-sizing: border-box;
+  position: static;
+  display: block;
+  float: none;
+  transform: none;
+  text-shadow: none;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: normal;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#noname-quick-duel {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  background: radial-gradient(ellipse at 50% 0%, #34414b 0, transparent 65%), #111c26f7;
+  color: #f4eada;
+  text-align: left;
+  isolation: isolate;
+  touch-action: manipulation;
+}
+
+#noname-quick-duel .nqd-panel {
+  position: relative;
+  width: min(100%, 480px);
+  padding: 38px 32px 26px;
+  border: 1px solid #ddc6a640;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #26333e, #1b2630);
+  box-shadow: 0 24px 80px #0005;
+}
+
+#noname-quick-duel .nqd-eyebrow {
+  margin-bottom: 12px;
+  color: #cfb48a;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+#noname-quick-duel .nqd-title {
+  color: #fff5e4;
+  font-family: "Songti SC", "Noto Serif CJK SC", "SimSun", serif;
+  font-size: clamp(27px, 6vw, 34px);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.025em;
+}
+
+#noname-quick-duel .nqd-intro {
+  margin-top: 12px;
+  color: #bac4ca;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+#noname-quick-duel .nqd-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-top: 28px;
+  padding: 16px;
+  border: 1px solid #ffffff12;
+  border-radius: 12px;
+  background: #101a2380;
+}
+
+#noname-quick-duel .nqd-indicator {
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: #d7b47f;
+  box-shadow: 0 0 0 4px #d7b47f14;
+}
+
+#noname-quick-duel[data-phase="loading"] .nqd-indicator,
+#noname-quick-duel[data-phase="joining"] .nqd-indicator {
+  animation: nqd-pulse 1.7s ease-in-out infinite;
+}
+
+#noname-quick-duel[data-phase="error"] .nqd-indicator { background: #efaa98; box-shadow: 0 0 0 4px #efaa9814; }
+#noname-quick-duel .nqd-status-text { min-width: 0; overflow-wrap: anywhere; color: #f4eada; font-size: 14px; }
+#noname-quick-duel .nqd-invite { margin-top: 24px; }
+#noname-quick-duel .nqd-label { margin-bottom: 8px; color: #cbd1d3; font-size: 12px; font-weight: 600; }
+#noname-quick-duel .nqd-invite-row { display: flex; gap: 8px; }
+
+#noname-quick-duel .nqd-input {
+  display: block;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid #73818d75;
+  border-radius: 9px;
+  background: #101922;
+  color: #e7ddd0;
+  font-size: 16px;
+  line-height: normal;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
+}
+
+#noname-quick-duel .nqd-input::selection { background: #b89561; color: #101922; }
+#noname-quick-duel .nqd-input::placeholder { color: #87939b; opacity: 1; font-size: 13px; }
+
+#noname-quick-duel .nqd-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: #dec098;
+  color: #202b33;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+#noname-quick-duel .nqd-button:hover { background: #f0d1a8; }
+#noname-quick-duel .nqd-button:disabled { opacity: 0.45; cursor: wait; }
+#noname-quick-duel .nqd-secondary { border-color: #73818d75; background: transparent; color: #f4eada; }
+#noname-quick-duel .nqd-secondary:hover { background: #ffffff0d; }
+#noname-quick-duel .nqd-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+#noname-quick-duel .nqd-actions .nqd-button { flex: 1 1 auto; }
+#noname-quick-duel .nqd-copy-hint,
+#noname-quick-duel .nqd-note { margin-top: 12px; color: #9fadb6; font-size: 12px; line-height: 1.7; }
+
+#noname-quick-duel .nqd-hall {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 44px;
+  margin: 20px auto 0;
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: #aab7c0;
+  font-size: 13px;
+  text-decoration: underline;
+  text-decoration-color: #aab7c050;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+#noname-quick-duel .nqd-hall:hover { color: #f4eada; }
+#noname-quick-duel [hidden] { display: none !important; }
+
+#noname-quick-duel-entry {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 10001;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 106px;
+  min-height: 44px;
+  padding: 10px 17px;
+  border: 1px solid #d4b584aa;
+  border-radius: 24px;
+  background: #192630f2;
+  box-shadow: 0 4px 18px #0003;
+  color: #edcf9f;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+#noname-quick-duel-entry:hover { background: #293947; color: #fff0d7; }
+#noname-quick-duel :focus-visible,
+#noname-quick-duel-entry:focus-visible { outline: 3px solid #f0cb8d; outline-offset: 3px; }
+
+@keyframes nqd-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+@media (max-width: 420px) {
+  #noname-quick-duel .nqd-panel { padding: 30px 22px 20px; border-radius: 18px; }
+  #noname-quick-duel .nqd-invite-row { flex-wrap: wrap; }
+  #noname-quick-duel .nqd-input { flex-basis: 100%; width: 100%; }
+  #noname-quick-duel .nqd-copy { width: 100%; }
+}
+@media (max-height: 560px) {
+  #noname-quick-duel { place-items: start center; }
+  #noname-quick-duel .nqd-panel { padding-top: 24px; padding-bottom: 18px; }
+  #noname-quick-duel .nqd-status { margin-top: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #noname-quick-duel .nqd-indicator { animation: none !important; }
+}

@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { customizeDistribution } from './customize.mjs';
 import { installBiaofengDistribution } from './install-biaofeng.mjs';
+import { installQuickDuelDistribution } from './install-quick-duel.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const upstream = path.join(root, 'noname');
@@ -63,4 +64,5 @@ defaults.mode_config.connect.read_clipboard = false;
 await writeFile(configPath, JSON.stringify(defaults));
 await customizeDistribution(path.join(upstream, 'dist'));
 await installBiaofengDistribution(path.join(upstream, 'dist'));
+await installQuickDuelDistribution(path.join(upstream, 'dist'));
 console.log(`Ready: noname ${revision}. Run npm start.`);

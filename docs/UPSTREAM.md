@@ -4,6 +4,8 @@
 
 部署提供同域 HTTP/WebSocket 入口，通过原生 `/preload.js` 设置默认大厅、注册新增菜单，将发布配置默认模式设为联机。上游检出源码保持不变；构建补丁移除启动许可弹窗，并在编译后的单挑模块中安装 `additions/biaofeng-single.js`。其他单挑选项继续调用原版实现。
 
+快捷入口 `/?quick=host` 自动创建标风房间，邀请参数 `?quick=<roomId>` 自动加入。`additions/quick-duel.js` 对该链接会话接入原生连接、房间初始化和加载完成消息；构建脚本在已保存配置载入后加入可选启动钩子，确保旧的模式偏好不会把邀请带到其他模式。两名真实玩家加载完成后再恢复原生等待事件，选将与战斗继续走原有标风实现。视图与样式位于 `quick-duel-view.js`、`quick-duel.css`；没有新增服务或付费依赖。
+
 `additions/biaofeng-data.js` 记录精确将池与牌堆；旧风包技能从上游已有实现取得。`additions/biaofeng-skills.js` 处理约定旧版与上游的少量技能差异，仅在标风选项中生效。新增模块以 GPL-3.0-only 发布，源码随部署仓库提供。
 
 ## 核对的上游版本

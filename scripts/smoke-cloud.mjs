@@ -71,7 +71,15 @@ export async function smokeCloud(target) {
       assert.ok(text.length > 1000, 'Single-player mode bundle is unexpectedly small');
       assert.match(text, /installBiaofeng\(single\)/, 'Classic duel installer is missing');
     }],
-    ['/preload.js', text => assert.match(text, /registerBiaofengMenu\(context.lib, context.get\)/)],
+    ['/preload.js', text => {
+      assert.match(text, /registerBiaofengMenu\(context.lib, context.get\)/);
+      assert.match(text, /registerQuickDuel\(context\)/);
+    }],
+    ['/?quick=host', text => assert.match(text, /<title>无名杀<\/title>/)],
+    ['/noname/init/index.js', text => assert.match(text, /lib.quickDuel\?\.prepare\(\)/)],
+    ['/additions/quick-duel.js', text => assert.match(text, /registerQuickDuel/)],
+    ['/additions/quick-duel-view.js', text => assert.match(text, /createQuickDuelView/)],
+    ['/additions/quick-duel.css', text => assert.ok(text.length > 100)],
     ['/additions/biaofeng-menu.js', text => assert.match(text, /标风 1v1/)],
     ['/additions/biaofeng-data.js', text => assert.match(text, /BIAOFENG_PILE/)],
     ['/additions/biaofeng-single.js', text => assert.match(text, /installBiaofeng/)],
@@ -92,7 +100,7 @@ export async function smokeCloud(target) {
   if (report.errors.length) { report.ok = false; report.milliseconds = milliseconds(total); return report; }
 
   const websocket = new URL('/', origin); websocket.protocol = origin.protocol === 'https:' ? 'wss:' : 'ws:';
-  const roomKey = `smoke-${randomUUID()}`;
+  const roomKey = `duel_${randomUUID().replaceAll('-', '')}`;
   const clients = [];
   const step = async (name, operation) => {
     const started = performance.now();
@@ -115,11 +123,12 @@ export async function smokeCloud(target) {
     await step('create_native_room', async () => {
       host.send(['server', 'create', roomKey, '联机检测', 'caocao', {}, 'single']);
       assert.deepEqual(await host.receive(message => message[0] === 'createroom'), ['createroom', roomKey]);
-      host.send(['server', 'config', { mode: 'single', single_mode: 'biaofeng', biaofeng_four_bans: true, number: 2, gameStarted: false }]);
+      host.send(['server', 'config', { mode: 'single', single_mode: 'biaofeng', biaofeng_four_bans: true, quick_duel: true, number: 2, player_number: '2', observe: false, gameStarted: false }]);
       const update = await guest.receive(message => message[0] === 'updaterooms' && message[1].some(room => room[4] === roomKey));
       const room = update[1].find(room => room[4] === roomKey);
       assert.equal(room[2].single_mode, 'biaofeng');
       assert.equal(room[2].biaofeng_four_bans, true);
+      assert.equal(room[2].quick_duel, true);
     });
     await step('join_native_room', async () => {
       guest.send(['server', 'enter', roomKey, '联机检测客', 'zhaoyun']);
