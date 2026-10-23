@@ -1,5 +1,6 @@
 // Modified by noname-duel-cloud (2026-10-23), GPL-3.0-only.
 // Register before boot so both local setup and the online room menu see the mode.
+import { refreshBiaofengRosterMenus } from './biaofeng-roster-menu.js';
 const installed = new WeakSet();
 
 export default function registerBiaofengMenu(lib, get) {
@@ -22,6 +23,10 @@ export default function registerBiaofengMenu(lib, get) {
       previousUpdate?.call(this, config, map);
       const row = map[`${prefix}biaofeng_four_bans`];
       if (row) row[config[`${prefix}single_mode`] === 'biaofeng' ? 'show' : 'hide']();
+      if (prefix && lib.quickDuel) {
+        for (const node of Object.values(map)) node?.classList?.add('disabled');
+      }
+      refreshBiaofengRosterMenus(lib);
     };
     section[`${prefix}single_mode`].intro += '；标风 1v1：六明四暗、各选五将后定三将顺序、标准＋EX 共 108 张牌。';
   }

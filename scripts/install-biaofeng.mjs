@@ -21,7 +21,7 @@ export async function installBiaofengDistribution(dist) {
   // Validate before writing any build files, so a changed upstream fails visibly.
   const source = await readFile(modePath, 'utf8');
   const customized = addBiaofengToSingle(source);
-  const modules = ['biaofeng-menu.js', 'biaofeng-data.js', 'biaofeng-single.js', 'biaofeng-skills.js'];
+  const modules = ['biaofeng-menu.js', 'biaofeng-data.js', 'biaofeng-single.js', 'biaofeng-skills.js', 'biaofeng-roster-menu.js', 'biaofeng-roster-menu.css'];
   for (const name of modules) await readFile(path.join(root, 'additions', name), 'utf8');
   await mkdir(path.join(dist, 'additions'), { recursive: true });
   for (const name of modules) await copyFile(path.join(root, 'additions', name), path.join(dist, 'additions', name));

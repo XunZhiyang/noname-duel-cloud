@@ -136,6 +136,21 @@ test('host uses a fresh per-document cryptographic identity without changing ord
   assert.deepEqual(first.calls.saved, [['volume_audio', 3]]);
 });
 
+test('quick settings display the live classic rules rather than stale point-pick preferences', async () => {
+  const env = fixture();
+  env.lib.config.mode_config.single = { connect_single_mode: 'dianjiang', connect_choose_timeout: '30', connect_biaofeng_four_bans: false, single_mode: 'changban' };
+  await env.boot();
+  const settings = env.lib.config.mode_config.single;
+  assert.equal(env.lib.config.connect_mode, 'single');
+  assert.equal(settings.connect_single_mode, 'biaofeng');
+  assert.equal(settings.connect_choose_timeout, '60');
+  assert.equal(settings.connect_biaofeng_four_bans, true);
+  assert.equal(settings.single_mode, 'changban', 'local-mode preference is preserved');
+  env.game.saveConfig('connect_single_mode', 'dianjiang', 'single');
+  assert.equal(settings.connect_single_mode, 'biaofeng', 'native apply cannot replace the fixed quick rules');
+  assert.deepEqual(env.calls.saved, [], 'quick settings do not persist over normal room preferences');
+});
+
 test('host registers relay identity before creating the room and uses complete explicit native config', async () => {
   const env = fixture();
   await env.boot();

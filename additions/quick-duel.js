@@ -159,11 +159,23 @@ export default function registerQuickDuel(context) {
       lib.config.mode_config ||= {};
       lib.config.mode_config.connect ||= {};
       lib.config.mode_config.connect.read_clipboard = false;
+      // The native settings menu reads mode_config, not the live configOL.
+      // Seed its values before constructing the menu so cached 点将/30秒 never
+      // mislabel the fixed quick room or get applied over its real rules.
+      const quickSettings = createQuickConfig(lib);
+      lib.config.connect_mode = 'single';
+      const singleSettings = lib.config.mode_config.single ||= {};
+      for (const [key, value] of Object.entries(quickSettings)) singleSettings[`connect_${key}`] = value;
       for (const key of ['reconnect_info', 'tmp_owner_roomId', 'tmp_user_roomId', 'directstartmode']) delete lib.config[key];
       // Native init/switchMode save room metadata. Keep those writes scoped to
       // this page so opening a quick invitation does not redirect normal play.
       const saveConfig = game.saveConfig;
       game.saveConfig = function (key, value, local, callback) {
+        if (local === 'single' && key.startsWith('connect_')) {
+          singleSettings[key] = Object.hasOwn(quickSettings, key.slice(8)) ? quickSettings[key.slice(8)] : value;
+          callback?.();
+          return;
+        }
         if (!local && TEMPORARY_CONFIG.has(key)) {
           if (value === undefined) delete lib.config[key];
           else lib.config[key] = value;

@@ -8,6 +8,8 @@
 
 `additions/biaofeng-data.js` 记录精确将池与牌堆；旧风包技能从上游已有实现取得。`additions/biaofeng-skills.js` 处理约定旧版与上游的少量技能差异，仅在标风选项中生效。新增模块以 GPL-3.0-only 发布，源码随部署仓库提供。
 
+标风选中时，`biaofeng-roster-menu.js` 在原生武将页展示与选将逻辑共用的 29/33 将名单；切换其他模式即恢复原版武将包控件。构建补丁在武将页建立和模式切换时刷新此视图。快捷房间的临时菜单配置与固定房间配置同步，避免旧的点将偏好误标或覆盖标风规则。
+
 ## 核对的上游版本
 
 - 仓库：[libnoname/noname](https://github.com/libnoname/noname)。
