@@ -55,5 +55,8 @@ const defaults = JSON.parse(await readFile(configPath, 'utf8'));
 // User preferences in IndexedDB still override these deployment defaults.
 defaults.mode = 'connect';
 defaults.show_splash = 'off';
+defaults.mode_config ??= {};
+defaults.mode_config.connect ??= {};
+defaults.mode_config.connect.read_clipboard = false;
 await writeFile(configPath, JSON.stringify(defaults));
 console.log(`Ready: noname ${revision}. Run npm start.`);

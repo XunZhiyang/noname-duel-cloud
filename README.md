@@ -4,6 +4,8 @@
 
 固定上游版本：`1.11.7`，提交 `90b58bb9934edb1712fd187a80c8323b7aeabaf3`。采用原版支持的玩法，不承诺复刻最初讨论的老版 KOF 规则。
 
+已部署网址：[打开游戏](https://noname-duel-cloud.onrender.com/)。
+
 ## 一起玩
 
 1. 两个人在各自设备打开部署后的同一个 HTTPS 网址，首次启动阅读并确认原版许可说明。
@@ -39,6 +41,14 @@ npm run setup
 npm test
 npm start
 ```
+
+已部署服务可在后台检查，不会打开浏览器或产生页面弹窗：
+
+```sh
+node scripts/smoke-cloud.mjs https://noname-duel-cloud.onrender.com
+```
+
+检查包括资源与版本、两位客户端创建/加入房间、双向通信和退出清理。完整实战流程仍需人工体验，不把协议测试当成整局游戏验证。
 
 打开 `http://127.0.0.1:8080`。本机地址只能在本机使用；邀请远程玩家请使用云端 HTTPS 网址。
 
