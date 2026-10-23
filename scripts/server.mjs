@@ -144,13 +144,21 @@ export async function startHosting(options = {}) {
           response.end(JSON.stringify({ ok: true, service: 'noname' }));
           return;
         }
+        const query = new URL(request.url, 'http://localhost').searchParams;
+        const entryPage = ['/', '/index.html'].includes(pathname);
+        const explicitPlay = query.getAll('play').length === 1 && ['ai', 'hall'].includes(query.get('play'));
+        const home = entryPage && !query.has('quick') && !explicitPlay;
+        if (home) await assertInsideDistribution(root, 'additions/duel-home.html');
+        // Serve index directly: the upstream '/' redirect drops the query,
+        // which otherwise loses both the AI choice and quick-room invitations.
+        const target = entryPage ? (home ? '/additions/duel-home.html' : '/index.html') : request.url;
         const headers = Object.fromEntries(Object.entries(request.headers).filter(([name]) => !hopHeaders.has(name)));
         headers.host = `localhost:${fsAddress.port}`;
-        const outgoing = http.request({ hostname: fsAddress.address, port: fsAddress.port, path: request.url, method: request.method, headers }, upstreamResponse => {
+        const outgoing = http.request({ hostname: fsAddress.address, port: fsAddress.port, path: target, method: request.method, headers }, upstreamResponse => {
           const outgoingHeaders = Object.fromEntries(Object.entries(upstreamResponse.headers).filter(([name]) => !hopHeaders.has(name) && !name.startsWith('access-control-')));
           outgoingHeaders['x-content-type-options'] = 'nosniff';
           outgoingHeaders['referrer-policy'] = 'no-referrer';
-          if (isReadApi) outgoingHeaders['cache-control'] = 'no-store';
+          if (isReadApi || entryPage) outgoingHeaders['cache-control'] = 'no-store';
           response.writeHead(upstreamResponse.statusCode || 502, outgoingHeaders);
           upstreamResponse.pipe(response);
           upstreamResponse.on('error', () => response.destroy());

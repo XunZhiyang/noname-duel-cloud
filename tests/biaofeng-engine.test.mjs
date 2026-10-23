@@ -22,7 +22,7 @@ async function runtime(options = {}) {
     lib.character[hero.nativeId] = definition;
     for (const skill of hero.skills) lib.skill[skill] = {};
   }
-  const _status = { connectMode: true, mode: 'biaofeng' };
+  const _status = { connectMode: options.connectMode !== false, mode: 'biaofeng' };
   const game = {
     players: [], me: null,
     finishSkill: skill => calls.finishedSkills.push(skill),
@@ -57,7 +57,7 @@ async function runtime(options = {}) {
     const current = {
       playerid: id, identity: null, ai: {}, storage: {}, hand: [],
       node: { identity: { dataset: { color: 'test' }, classList: classes() } },
-      setIdentity() {}, isOnline() { return this !== game.me; }, isAlive() { return !this.dead; },
+      setIdentity() {}, isOnline() { return _status.connectMode && this !== game.me; }, isAlive() { return !this.dead; },
       send(fn, ...args) { calls.private.push({ id: this.playerid, fn: String(fn), args: plain(args) }); },
       init(name) { this.name = this.name1 = name; this.hp = this.maxHp = lib.character[name].hp; this.dead = false; },
       revive() { this.dead = false; },
@@ -113,8 +113,41 @@ async function runtime(options = {}) {
   };
   const mode = api.installBiaofeng(original);
   Object.assign(game, mode.game);
+  if (options.nativeLocalChoices) {
+    const content = await readFile(new URL('../noname/apps/core/dist/noname/library/element/content.js', import.meta.url), 'utf8');
+    const begin = content.indexOf('  async chooseButtonOL(event, trigger, player) {');
+    assert.ok(begin >= 0, 'Pinned native choice method exists');
+    const end = content.indexOf('\n  },', begin);
+    const choose = vm.runInContext(`({${content.slice(begin, end + 4)}}).chooseButtonOL`, context);
+    for (const player of game.players) {
+      player.chooseButton = (count, forced, dialog) => {
+        calls.choices.push({ id: player.playerid, human: player === game.me, count });
+        return { forResult: async () => ({ links: dialog[1][0].slice(-count) }) };
+      };
+      player.chooseButtonOL = requests => ({ forResult: async () => {
+        const event = { list: requests };
+        await choose(event);
+        return event.result;
+      } });
+    }
+  }
   return { ...api, lib, game, ui, get, _status, calls, mode, context };
 }
+
+test('offline classic draft uses native local choice handling for one human and one AI without a room', async () => {
+  const env = await runtime({ connectMode: false, nativeLocalChoices: true });
+  await env.mode.start();
+  assert.equal(env.calls.native.includes('wait'), false);
+  await env.game.chooseCharacter().content();
+  assert.equal(env.game.players.length, 2);
+  assert.equal(env.calls.choices.length, 12);
+  assert.equal(env.calls.choices.filter(choice => choice.human).length, 6);
+  assert.equal(env.calls.choices.filter(choice => !choice.human).length, 6);
+  assert.equal(env.calls.private.length, 0);
+  const allowed = data.getBiaofengRoster().map(hero => hero.nativeId);
+  for (const player of env.game.players) assert.ok(allowed.includes(player.name));
+  assert.equal(env.game.getState().biaofeng.stage, 'battle');
+});
 
 test('six visible/four hidden draft follows 1–2–2–2–2–1 with private fixed lineups', async () => {
   const env = await runtime();

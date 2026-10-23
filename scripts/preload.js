@@ -2,10 +2,12 @@
 import browserReady from '/noname/init/browser.js';
 import registerBiaofengMenu from '/additions/biaofeng-menu.js';
 import registerQuickDuel from '/additions/quick-duel.js';
+import registerDuelEntry from '/additions/duel-entry.js';
 
 export default async function preload(context) {
   await browserReady(context);
   registerBiaofengMenu(context.lib, context.get);
   context.lib.hallURL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`;
   registerQuickDuel(context);
+  registerDuelEntry(context);
 }

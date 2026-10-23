@@ -64,7 +64,11 @@ export async function smokeCloud(target) {
   let version;
   const requests = [
     ['/healthz', text => assert.equal(JSON.parse(text).ok, true)],
-    ['/index.html', text => assert.match(text, /<title>无名杀<\/title>/)],
+    ['/index.html', text => { assert.match(text, /和电脑玩/); assert.match(text, /邀请另一人/); }],
+    ['/', text => assert.match(text, /href="\/\?play=ai"/)],
+    ['/?play=ai', text => assert.match(text, /<title>无名杀<\/title>/)],
+    ['/?play=hall', text => assert.match(text, /<title>无名杀<\/title>/)],
+    ['/additions/duel-entry.js', text => assert.match(text, /single_mode: 'biaofeng'/)],
     ['/game/update.js', text => { version = text.match(/version:\s*["']([^"']+)["']/)?.[1]; assert.ok(version, 'Missing original version'); report.version = version; }],
     ['/game/build-info.json', text => { const build = JSON.parse(text); assert.ok(build.commit); report.commit = build.commit; }],
     ['/mode/single.js', text => {
@@ -74,9 +78,10 @@ export async function smokeCloud(target) {
     ['/preload.js', text => {
       assert.match(text, /registerBiaofengMenu\(context.lib, context.get\)/);
       assert.match(text, /registerQuickDuel\(context\)/);
+      assert.match(text, /registerDuelEntry\(context\)/);
     }],
     ['/?quick=host', text => assert.match(text, /<title>无名杀<\/title>/)],
-    ['/noname/init/index.js', text => assert.match(text, /lib.quickDuel\?\.prepare\(\)/)],
+    ['/noname/init/index.js', text => { assert.match(text, /lib.quickDuel\?\.prepare\(\)/); assert.match(text, /lib.duelEntry\?\.prepare\(\)/); }],
     ['/additions/quick-duel.js', text => assert.match(text, /registerQuickDuel/)],
     ['/additions/quick-duel-view.js', text => assert.match(text, /createQuickDuelView/)],
     ['/additions/quick-duel.css', text => assert.ok(text.length > 100)],
@@ -95,6 +100,7 @@ export async function smokeCloud(target) {
     const response = await fetch(new URL(pathname, origin), { signal: AbortSignal.timeout(45_000) });
     const bytes = Buffer.from(await response.arrayBuffer());
     assert.equal(response.status, 200, `${pathname} returned ${response.status}`);
+    if (pathname.startsWith('/?')) assert.equal(response.redirected, false, `${pathname} must preserve its entry parameters`);
     if (validate) validate(bytes.toString('utf8'));
     else assert.ok(response.headers.get('content-type')?.startsWith('image/'), `${pathname} did not return an image`);
     report.http.push({ path: pathname, status: response.status, bytes: bytes.length, milliseconds: milliseconds(started) });

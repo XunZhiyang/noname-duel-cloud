@@ -7,6 +7,7 @@ import { customizeDistribution } from './customize.mjs';
 import { installBiaofengDistribution } from './install-biaofeng.mjs';
 import { installQuickDuelDistribution } from './install-quick-duel.mjs';
 import { installBiaofengRosterMenuDistribution } from './install-biaofeng-roster-menu.mjs';
+import { installDuelEntryDistribution } from './install-duel-entry.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const upstream = path.join(root, 'noname');
@@ -67,4 +68,5 @@ await customizeDistribution(path.join(upstream, 'dist'));
 await installBiaofengDistribution(path.join(upstream, 'dist'));
 await installQuickDuelDistribution(path.join(upstream, 'dist'));
 await installBiaofengRosterMenuDistribution(path.join(upstream, 'dist'));
+await installDuelEntryDistribution(path.join(upstream, 'dist'));
 console.log(`Ready: noname ${revision}. Run npm start.`);

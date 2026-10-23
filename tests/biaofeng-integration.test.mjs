@@ -79,10 +79,11 @@ test('the deployment preload registers the room menu before boot and keeps the s
     browserReady: async value => { assert.equal(value, context); calls.push('browser'); },
     registerBiaofengMenu: value => { assert.equal(value, context.lib); calls.push('menu'); },
     registerQuickDuel: value => { assert.equal(value, context); calls.push('quick'); },
+    registerDuelEntry: value => { assert.equal(value, context); calls.push('entry'); },
     location: { protocol: 'https:', host: 'example.onrender.com' },
   });
   await run(context);
-  assert.deepEqual(calls, ['browser', 'menu', 'quick']);
+  assert.deepEqual(calls, ['browser', 'menu', 'quick', 'entry']);
   assert.equal(context.lib.hallURL, 'wss://example.onrender.com');
 });
 

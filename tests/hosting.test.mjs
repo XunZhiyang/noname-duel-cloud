@@ -19,6 +19,8 @@ before(async () => {
   fixture = await mkdtemp(path.join(tmpdir(), 'noname-hosting-test-'));
   gameDir = path.join(fixture, 'dist');
   await mkdir(path.join(gameDir, 'card'), { recursive: true });
+  await mkdir(path.join(gameDir, 'additions'), { recursive: true });
+  await writeFile(path.join(gameDir, 'additions', 'duel-home.html'), '<!doctype html><title>标风 1v1</title><a href="/?play=ai">和电脑玩</a><a href="/?quick=host">邀请另一人</a>');
   await mkdir(path.join(gameDir, 'node_modules', '.pnpm', 'fixture'), { recursive: true });
   await writeFile(path.join(gameDir, 'index.html'), '<!doctype html><title>Original game fixture</title>');
   await writeFile(path.join(gameDir, 'noname.js'), 'export const original = true;');
@@ -45,7 +47,7 @@ function rawRequest(target, method = 'GET') {
 }
 
 test('serves the original distribution and a health endpoint', async () => {
-  const page = await fetch(`${hosting.url}/`);
+  const page = await fetch(`${hosting.url}/?play=ai`);
   assert.equal(page.status, 200);
   assert.match(await page.text(), /Original game fixture/);
   assert.equal(page.headers.get('x-content-type-options'), 'nosniff');
@@ -54,6 +56,21 @@ test('serves the original distribution and a health endpoint', async () => {
   assert.equal(dependency.status, 200);
   assert.match(await dependency.text(), /dependency/);
   assert.equal((await fetch(`${hosting.url}/scripts/server.mjs`)).status, 404);
+});
+
+test('home and bookmarked index show clear play choices; explicit play and invitations retain the engine', async () => {
+  for (const route of ['/', '/index.html', '/?play=unknown', '/index.html?play=ai&play=hall']) {
+    const page = await fetch(hosting.url + route);
+    assert.equal(page.status, 200);
+    assert.equal(page.headers.get('cache-control'), 'no-store');
+    assert.match(await page.text(), /和电脑玩/);
+  }
+  for (const route of ['/?play=ai', '/index.html?play=ai', '/?play=hall', '/?quick=host', '/?quick=duel_0123456789abcdef0123456789abcdef']) {
+    const page = await fetch(hosting.url + route);
+    assert.equal(page.status, 200);
+    assert.equal(page.redirected, false, `Entry parameters must survive: ${route}`);
+    assert.match(await page.text(), /Original game fixture/);
+  }
 });
 
 test('preserves upstream file API response formats', async () => {

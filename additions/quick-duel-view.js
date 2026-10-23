@@ -75,7 +75,7 @@ export function createQuickDuelView({ document, location, navigator }) {
   newGame.href = '/?quick=host';
   actions.append(retryButton, newGame);
   const slowNote = node(document, 'p', 'nqd-note', '免费服务首次打开可能稍慢，请稍候。');
-  const hallLink = node(document, 'a', 'nqd-hall', '进入普通大厅');
+  const hallLink = node(document, 'a', 'nqd-hall', '返回入口');
   hallLink.href = '/';
   panel.append(eyebrow, heading, introduction, statusRow, invite, actions, slowNote, hallLink);
   overlay.append(panel);
