@@ -2,7 +2,7 @@
 
 本项目采用完整的无名杀网页应用，保留其界面、结算引擎、武将技能、原有模式规则与联机协议，不另行改写成最初讨论的经典 KOF 规则。早期编写的 `prototype/src/engine.js`、`prototype/src/app.js`、`prototype/src/network.js` 是已停止推进的原型，不作为发布版本，也不在无名杀加载失败时作为后备游戏启动。`prototype/src/data.js`、`prototype/tests/data.test.js` 和 `docs/RULES.md` 保留为早期牌堆核对资料，不表示发布应用调用了这套原型引擎。
 
-部署只额外提供同域 HTTP/WebSocket 入口，并通过原生 `/preload.js` 设置默认大厅、将发布配置默认模式设为联机。上游游戏源文件未修改。
+部署只额外提供同域 HTTP/WebSocket 入口，并通过原生 `/preload.js` 设置默认大厅、将发布配置默认模式设为联机。上游检出源码保持不变；发布入口通过可审计的构建补丁移除启动许可弹窗，规则与技能不变。
 
 ## 核对的上游版本
 
@@ -16,7 +16,7 @@
 
 上游 [LICENSE](https://github.com/libnoname/noname/blob/90b58bb9934edb1712fd187a80c8323b7aeabaf3/LICENSE) 是 GNU GPL 第 3 版。上游 [README](https://github.com/libnoname/noname/blob/90b58bb9934edb1712fd187a80c8323b7aeabaf3/README.md) 另外写明再分发时保留仓库出处，并提出不要用于商业用途。
 
-打包时保留上游 `LICENSE`、`README.md`、原有源码版权说明，以及应用内的「关于无名杀」和首次启动许可说明。在本项目的修改记录中标注修改内容、日期和上游提交。发布编译结果时，同时提供对应源代码及构建脚本的获取位置；不把无名杀及其内置资源宣称为本项目原创。
+打包时保留上游 `LICENSE`、`README.md`、原有源码版权说明，以及应用内的「关于无名杀」。按用户明确要求，部署产物移除首次启动许可确认弹窗；补丁和修改日期保存在部署源码中，不伪造用户点击记录。在本项目的修改记录中标注修改内容、日期和上游提交。发布编译结果时，同时提供对应源代码及构建脚本的获取位置；不把无名杀及其内置资源宣称为本项目原创。
 
 上游源码中可核对这些位置：
 

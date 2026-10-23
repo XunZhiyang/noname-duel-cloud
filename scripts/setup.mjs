@@ -1,8 +1,9 @@
-/** Fetch and build the exact, unmodified upstream release. */
+/** Build the pinned upstream game, then apply documented deployment defaults. */
 import { spawnSync } from 'node:child_process';
 import { access, copyFile, readFile, writeFile, stat, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { customizeDistribution } from './customize.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const upstream = path.join(root, 'noname');
@@ -59,4 +60,5 @@ defaults.mode_config ??= {};
 defaults.mode_config.connect ??= {};
 defaults.mode_config.connect.read_clipboard = false;
 await writeFile(configPath, JSON.stringify(defaults));
+await customizeDistribution(path.join(upstream, 'dist'));
 console.log(`Ready: noname ${revision}. Run npm start.`);

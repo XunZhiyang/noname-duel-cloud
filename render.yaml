@@ -3,7 +3,7 @@ services:
     name: noname-duel
     runtime: node
     plan: free
-    region: virginia
+    region: oregon
     buildCommand: npm run setup
     startCommand: npm start
     healthCheckPath: /healthz
